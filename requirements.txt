@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+httpx
+phonenumbers
+python-dotenv
+pydantic
+pydantic-settings
+sqlalchemy
+python-multipart
