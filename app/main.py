@@ -137,11 +137,36 @@ def export_batch_csv(batch_id: str, db: Session = Depends(get_db)):
         ])
     
     output.seek(0)
+    output.seek(0)
     return StreamingResponse(
         iter([output.getvalue()]),
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=batch_{batch_id}.csv"}
     )
+
+@app.post("/batches/{batch_id}/cancel", response_model=BatchResponse)
+def cancel_batch(batch_id: str, db: Session = Depends(get_db)):
+    batch = db.query(Batch).filter(Batch.id == batch_id).first()
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    if batch.status == "running":
+        batch.status = "cancelling"
+        db.commit()
+    
+    return batch
+
+@app.delete("/batches/{batch_id}", status_code=204)
+def delete_batch(batch_id: str, db: Session = Depends(get_db)):
+    batch = db.query(Batch).filter(Batch.id == batch_id).first()
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    
+    # Delete related messages first
+    db.query(Message).filter(Message.batch_id == batch_id).delete()
+    db.delete(batch)
+    db.commit()
+    return
 
 
 # Serve Static Files (Frontend)

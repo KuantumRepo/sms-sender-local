@@ -56,30 +56,30 @@ export const MappingStep: React.FC<MappingStepProps> = ({
     return (
         <div className="w-full max-w-4xl mx-auto mt-8 space-y-8">
             <div className="space-y-2 text-center">
-                <h2 className="text-2xl font-bold text-slate-900">Map Columns</h2>
-                <p className="text-slate-500">
+                <h2 className="text-2xl font-bold text-white">Map Columns</h2>
+                <p className="text-slate-400">
                     Match your CSV columns to the required fields. We'll show you a preview of the data below.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
                 {/* Mapping Controls */}
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
-                    <h3 className="font-semibold text-slate-900 mb-4">Field Mapping</h3>
+                <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-6">
+                    <h3 className="font-semibold text-white mb-4">Field Mapping</h3>
                     {REQUIRED_FIELDS.map((field) => (
                         <div key={field.key} className="space-y-2">
-                            <label className="block text-sm font-medium text-slate-700">
-                                {field.label} {field.required && <span className="text-red-500">*</span>}
+                            <label className="block text-sm font-medium text-slate-300">
+                                {field.label} {field.required && <span className="text-red-400">*</span>}
                             </label>
                             <select
                                 value={mapping[field.key] || ''}
                                 onChange={(e) => handleFieldChange(field.key, e.target.value)}
                                 className={`
-                  w-full px-3 py-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all
-                  ${!mapping[field.key] && field.required ? 'border-amber-300' : 'border-slate-200'}
+                  w-full px-3 py-2 bg-slate-950 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all text-white
+                  ${!mapping[field.key] && field.required ? 'border-amber-500/50' : 'border-slate-800'}
                 `}
                             >
-                                <option value="">Select a column...</option>
+                                <option value="" className="text-slate-500">Select a column...</option>
                                 {headers.map(header => (
                                     <option key={header} value={header}>{header}</option>
                                 ))}
@@ -90,13 +90,13 @@ export const MappingStep: React.FC<MappingStepProps> = ({
 
                 {/* Live Preview */}
                 <div className="space-y-4">
-                    <div className="bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
-                        <div className="px-4 py-3 border-b border-slate-200 bg-slate-100/50">
-                            <h3 className="text-sm font-semibold text-slate-700">Data Preview</h3>
+                    <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                        <div className="px-4 py-3 border-b border-slate-800 bg-slate-900/50">
+                            <h3 className="text-sm font-semibold text-slate-300">Data Preview</h3>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="text-xs text-slate-500 uppercase bg-slate-50">
+                                <thead className="text-xs text-slate-400 uppercase bg-slate-900">
                                     <tr>
                                         {REQUIRED_FIELDS.map(f => (
                                             <th key={f.key} className="px-4 py-3 font-medium whitespace-nowrap">
@@ -105,15 +105,15 @@ export const MappingStep: React.FC<MappingStepProps> = ({
                                         ))}
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-200">
+                                <tbody className="divide-y divide-slate-800">
                                     {sampleData.slice(0, 5).map((row, idx) => (
-                                        <tr key={idx} className="bg-white">
+                                        <tr key={idx} className="bg-slate-950">
                                             {REQUIRED_FIELDS.map(f => {
                                                 const mappedHeader = mapping[f.key];
                                                 const cellValue = mappedHeader ? row[mappedHeader] : '-';
                                                 return (
-                                                    <td key={f.key} className="px-4 py-3 text-slate-600 font-mono text-xs whitespace-nowrap">
-                                                        {cellValue || <span className="text-slate-300 italic">Empty</span>}
+                                                    <td key={f.key} className="px-4 py-3 text-slate-300 font-mono text-xs whitespace-nowrap">
+                                                        {cellValue || <span className="text-slate-600 italic">Empty</span>}
                                                     </td>
                                                 );
                                             })}
@@ -123,17 +123,17 @@ export const MappingStep: React.FC<MappingStepProps> = ({
                             </table>
                         </div>
                     </div>
-                    <p className="text-xs text-slate-400 text-center">
+                    <p className="text-xs text-slate-500 text-center">
                         Showing first 5 rows based on current mapping
                     </p>
                 </div>
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+            <div className="flex items-center justify-between pt-6 border-t border-slate-800">
                 <button
                     onClick={onBack}
-                    className="px-6 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="px-6 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                 >
                     Back
                 </button>
@@ -144,7 +144,7 @@ export const MappingStep: React.FC<MappingStepProps> = ({
             flex items-center space-x-2 px-6 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all
             ${isFormValid()
                             ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-md'
-                            : 'bg-slate-300 cursor-not-allowed'}
+                            : 'bg-slate-800 cursor-not-allowed text-slate-500'}
           `}
                 >
                     <span>Next Step</span>

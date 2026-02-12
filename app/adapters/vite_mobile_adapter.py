@@ -8,7 +8,7 @@ class ViteMobileAdapter(SMSProviderAdapter):
         self.base_url = settings.PROVIDER_BASE_URL.rstrip("/")
         self.headers = {
             "Authorization": f"Bearer {settings.PROVIDER_BEARER_TOKEN}",
-            "Content-Type": "application/json",
+            # "Content-Type": "application/x-www-form-urlencoded" is set automatically by httpx when using data=
             "Accept": "application/json",
         }
         self.server_type = settings.VITEMOBILE_SERVER_TYPE
@@ -18,8 +18,9 @@ class ViteMobileAdapter(SMSProviderAdapter):
         url = f"{self.base_url}/api/messages/send/"
         
         # ViteMobile expects 'lead' for phone numbers and specific fields
+        # Switching to form-data (application/x-www-form-urlencoded) as JSON is rejected
         payload = {
-            "lead": to, # Can be single number or newline separated
+            "lead": to, 
             "message": message,
             "server_type": self.server_type,
             "protocol": self.protocol
@@ -28,7 +29,7 @@ class ViteMobileAdapter(SMSProviderAdapter):
         async with httpx.AsyncClient() as client:
             try:
                 response = await client.post(
-                    url, json=payload, headers=self.headers, timeout=10.0
+                    url, data=payload, headers=self.headers, timeout=10.0
                 )
                 response.raise_for_status()
                 data = response.json()

@@ -104,67 +104,67 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
     return (
         <div className="w-full max-w-4xl mx-auto mt-8 space-y-8">
             <div className="space-y-2 text-center">
-                <h2 className="text-2xl font-bold text-slate-900">Review & Submit</h2>
-                <p className="text-slate-500">
+                <h2 className="text-2xl font-bold text-white">Review & Submit</h2>
+                <p className="text-slate-400">
                     We've analyzed your data. Please review the summary below before importing.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {/* Stats Cards */}
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center space-y-2">
-                    <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+                <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col items-center text-center space-y-2">
+                    <div className="p-3 bg-blue-500/10 text-blue-400 rounded-full">
                         <CheckCircle className="w-6 h-6" />
                     </div>
-                    <span className="text-3xl font-bold text-slate-900">{folderData.valid}</span>
-                    <span className="text-sm font-medium text-slate-500">Valid Contacts</span>
+                    <span className="text-3xl font-bold text-white">{folderData.valid}</span>
+                    <span className="text-sm font-medium text-slate-400">Valid Contacts</span>
                 </div>
 
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center text-center space-y-2">
-                    <div className={`p-3 rounded-full ${folderData.invalid > 0 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
+                <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm flex flex-col items-center text-center space-y-2">
+                    <div className={`p-3 rounded-full ${folderData.invalid > 0 ? 'bg-red-500/10 text-red-500' : 'bg-green-500/10 text-green-500'}`}>
                         {folderData.invalid > 0 ? <XCircle className="w-6 h-6" /> : <CheckCircle className="w-6 h-6" />}
                     </div>
-                    <span className={`text-3xl font-bold ${folderData.invalid > 0 ? 'text-red-600' : 'text-slate-900'}`}>
+                    <span className={`text-3xl font-bold ${folderData.invalid > 0 ? 'text-red-500' : 'text-white'}`}>
                         {folderData.invalid}
                     </span>
-                    <span className="text-sm font-medium text-slate-500">Invalid / Missing Phone</span>
+                    <span className="text-sm font-medium text-slate-400">Invalid / Missing Phone</span>
                 </div>
             </div>
 
             {/* Template Selection */}
-            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
-                <label className="block text-sm font-medium text-slate-700">Message Template</label>
+            <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-4">
+                <label className="block text-sm font-medium text-slate-300">Message Template</label>
                 <select
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-white"
                     value={templateKey}
                     onChange={e => setTemplateKey(e.target.value)}
                 >
                     {templates.length > 0 ? templates.map(t => (
-                        <option key={t.key} value={t.key}>{t.label}</option>
+                        <option key={t.key} value={t.key} className="text-slate-900 bg-white">{t.label}</option>
                     )) : <option value="">Loading templates...</option>}
                 </select>
             </div>
 
             {/* Error Details */}
             {folderData.errors.length > 0 && (
-                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-200 bg-red-50/50 flex items-center space-x-2">
+                <div className="bg-slate-900 rounded-xl border border-slate-800 shadow-sm overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-800 bg-red-900/10 flex items-center space-x-2">
                         <AlertTriangle className="w-5 h-5 text-red-500" />
-                        <h3 className="font-semibold text-slate-900">Issues Found</h3>
+                        <h3 className="font-semibold text-white">Issues Found</h3>
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                         <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0">
+                            <thead className="text-xs text-slate-400 uppercase bg-slate-900 sticky top-0">
                                 <tr>
                                     <th className="px-6 py-3">Row</th>
                                     <th className="px-6 py-3">Issue</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100">
+                            <tbody className="divide-y divide-slate-800">
                                 {folderData.errors.map((err, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-50">
-                                        <td className="px-6 py-3 font-mono text-slate-600">#{err.row}</td>
-                                        <td className="px-6 py-3 text-red-600">{err.reason}</td>
+                                    <tr key={idx} className="hover:bg-slate-800/50">
+                                        <td className="px-6 py-3 font-mono text-slate-400">#{err.row}</td>
+                                        <td className="px-6 py-3 text-red-400">{err.reason}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -174,10 +174,10 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-between pt-6 border-t border-slate-200">
+            <div className="flex items-center justify-between pt-6 border-t border-slate-800">
                 <button
                     onClick={onBack}
-                    className="px-6 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="px-6 py-2.5 text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
                 >
                     Back
                 </button>
@@ -188,7 +188,7 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
             flex items-center space-x-2 px-8 py-2.5 text-sm font-medium text-white rounded-lg shadow-sm transition-all
             ${folderData.valid > 0
                             ? 'bg-blue-600 hover:bg-blue-700 hover:shadow-md'
-                            : 'bg-slate-300 cursor-not-allowed'}
+                            : 'bg-slate-800 cursor-not-allowed text-slate-500'}
           `}
                 >
                     {isSubmitting ? (

@@ -36,13 +36,13 @@ export const CSVWizard: React.FC = () => {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="w-full max-w-5xl mx-auto bg-slate-900 rounded-2xl shadow-sm border border-slate-800 overflow-hidden">
             {/* Stepper Header */}
-            <div className="bg-slate-50 border-b border-slate-200 px-8 py-6">
+            <div className="bg-slate-950 border-b border-slate-800 px-8 py-6">
                 <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                        <h1 className="text-xl font-bold text-slate-900">Import Contacts</h1>
-                        <p className="text-sm text-slate-500">Upload and configure your recipient list</p>
+                        <h1 className="text-xl font-bold text-white">Import Contacts</h1>
+                        <p className="text-sm text-slate-400">Upload and configure your recipient list</p>
                     </div>
 
                     {/* Steps Indicator */}
@@ -55,13 +55,13 @@ export const CSVWizard: React.FC = () => {
                             <div key={s.num} className="flex items-center">
                                 <div className={`
                             flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-colors
-                            ${step === s.num ? 'bg-white shadow-sm ring-1 ring-slate-200 text-blue-600' :
-                                        step > s.num ? 'text-green-600' : 'text-slate-400'}
+                            ${step === s.num ? 'bg-slate-800 shadow-sm ring-1 ring-slate-700 text-blue-400' :
+                                        step > s.num ? 'text-green-400' : 'text-slate-600'}
                         `}>
                                     <s.icon className="w-4 h-4" />
                                     <span className="text-sm font-medium">{s.label}</span>
                                 </div>
-                                {idx < 2 && <div className="w-8 h-px bg-slate-200 mx-2" />}
+                                {idx < 2 && <div className="w-8 h-px bg-slate-800 mx-2" />}
                             </div>
                         ))}
                     </div>

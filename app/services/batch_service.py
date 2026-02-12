@@ -31,11 +31,21 @@ class BatchService:
             delay = 1.0 / settings.RATE_LIMIT_PER_SECOND
 
             for number in numbers:
+                # 0. Check for Cancellation
+                # Refresh to get latest status
+                self.db.refresh(batch)
+                if batch.status == "cancelling":
+                    logger.info(f"Batch {batch_id} cancelled by user.")
+                    batch.status = "cancelled"
+                    batch.completed_at = datetime.utcnow()
+                    db.commit()
+                    return
+
                 # 1. Get Message Variation
                 message_text = template_service.get_variation(template_key)
                 if not message_text:
                     logger.error(f"No variation found for template {template_key}")
-                    message_text = "Error: Template not found" # Should likely handle this better
+                    message_text = "Error: Template not found" 
 
                 # 2. Send SMS
                 result = await self.adapter.send_sms(number, message_text)
