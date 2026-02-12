@@ -1,144 +1,102 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { uploadBatch, getBatches, getTemplates, Batch, Template } from '../lib/api';
+import { useState, useEffect } from 'react';
+import { getBatches, Batch } from '../lib/api';
+import { CSVWizard } from '../components/csv-wizard/CSVWizard';
 
 export default function Dashboard() {
   const [batches, setBatches] = useState<Batch[]>([]);
-  const [templates, setTemplates] = useState<Template[]>([]);
-  const [templateKey, setTemplateKey] = useState('');
-  const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const fetchData = async () => {
-    try {
-      const [batchesData, templatesData] = await Promise.all([
-        getBatches(),
-        getTemplates()
-      ]);
-      setBatches(batchesData);
-      setTemplates(templatesData);
-      if (templatesData.length > 0 && !templateKey) {
-        setTemplateKey(templatesData[0].key);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
 
   useEffect(() => {
-    fetchData();
+    // Initial fetch
+    getBatches().then(setBatches).catch(console.error);
+
+    // Poll for updates
     const interval = setInterval(() => {
       getBatches().then(setBatches).catch(console.error);
     }, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!fileInputRef.current?.files?.[0]) return;
-
-    setLoading(true);
-    try {
-      await uploadBatch(fileInputRef.current.files[0], templateKey);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-      const batchesData = await getBatches();
-      setBatches(batchesData);
-    } catch (e: any) {
-      alert(e.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
-    <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-8">SMS Batch Sender</h1>
+    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto space-y-12">
 
-      <div className="bg-white p-6 rounded shadow mb-8 text-black">
-        <h2 className="text-xl font-semibold mb-4">Send New Batch</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Manage templates in <code>templates.json</code> in the project root.
-        </p>
-        <form onSubmit={handleUpload} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Select Template</label>
-            <select
-              value={templateKey}
-              onChange={(e) => setTemplateKey(e.target.value)}
-              className="w-full border p-2 rounded"
-            >
-              {templates.map(t => (
-                <option key={t.key} value={t.key}>{t.label}</option>
-              ))}
-              {templates.length === 0 && <option>No templates found</option>}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Upload CSV</label>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".csv"
-              className="w-full border p-2 rounded"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {loading ? 'Processing...' : 'Upload & Send'}
-          </button>
-        </form>
-      </div>
-
-      <div className="bg-white p-6 rounded shadow text-black">
-        <h2 className="text-xl font-semibold mb-4">Recent Batches</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left">
-            <thead>
-              <tr className="border-b">
-                <th className="p-2">ID</th>
-                <th className="p-2">Template</th>
-                <th className="p-2">Total</th>
-                <th className="p-2">Success</th>
-                <th className="p-2">Failed</th>
-                <th className="p-2">Status</th>
-                <th className="p-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches.map(batch => (
-                <tr key={batch.id} className="border-b">
-                  <td className="p-2 text-sm">{batch.id}</td>
-                  <td className="p-2">{batch.template_key}</td>
-                  <td className="p-2">{batch.total_numbers}</td>
-                  <td className="p-2 text-green-600">{batch.success_count}</td>
-                  <td className="p-2 text-red-600">{batch.failure_count}</td>
-                  <td className="p-2 font-medium">{batch.status}</td>
-                  <td className="p-2">
-                    <a
-                      href={`http://localhost:8000/batches/${batch.id}/export`}
-                      target="_blank"
-                      className="text-blue-600 hover:underline text-sm"
-                    >
-                      Export CSV
-                    </a>
-                  </td>
-                </tr>
-              ))}
-              {batches.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="p-4 text-center text-gray-500">No batches found</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="text-center space-y-2">
+          <h1 className="text-3xl font-bold text-slate-900">SMS Batch Campaign</h1>
+          <p className="text-slate-500">Manage your contacts and campaigns efficiently</p>
         </div>
+
+        {/* New 3-Step Wizard */}
+        <section>
+          <CSVWizard />
+        </section>
+
+        {/* Batches List */}
+        <section className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white">
+            <h2 className="text-xl font-bold text-slate-900">Recent Batches</h2>
+            <button
+              onClick={() => getBatches().then(setBatches)}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Refresh List
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="px-6 py-4 font-semibold">ID</th>
+                  <th className="px-6 py-4 font-semibold">Template</th>
+                  <th className="px-6 py-4 font-semibold">Total</th>
+                  <th className="px-6 py-4 font-semibold">Success</th>
+                  <th className="px-6 py-4 font-semibold">Failed</th>
+                  <th className="px-6 py-4 font-semibold">Status</th>
+                  <th className="px-6 py-4 font-semibold">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-sm">
+                {batches.map(batch => (
+                  <tr key={batch.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4 text-slate-600 font-mono text-xs">{batch.id.slice(0, 8)}...</td>
+                    <td className="px-6 py-4 font-medium text-slate-900">{batch.template_key}</td>
+                    <td className="px-6 py-4 text-slate-600">{batch.total_numbers}</td>
+                    <td className="px-6 py-4 text-green-600 font-medium bg-green-50/50 rounded-lg">{batch.success_count}</td>
+                    <td className="px-6 py-4 text-red-600 font-medium bg-red-50/50 rounded-lg">{batch.failure_count}</td>
+                    <td className="px-6 py-4">
+                      <span className={`
+                            px-2.5 py-1 rounded-full text-xs font-semibold
+                            ${batch.status === 'completed' ? 'bg-green-100 text-green-800' :
+                          batch.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                            'bg-slate-100 text-slate-800'}
+                        `}>
+                        {batch.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <a
+                        href={`http://localhost:8000/batches/${batch.id}/export`}
+                        target="_blank"
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
+                        Download CSV
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+                {batches.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-12 text-center text-slate-400">
+                      No batches found. Start by importing a contact list above.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </div>
   );
