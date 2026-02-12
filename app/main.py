@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, BackgroundTasks
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.database import engine, Base, get_db
 from app.models import Batch, Message
@@ -11,10 +12,24 @@ from typing import List
 import uvicorn
 import io
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+import os
+
 # Create tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Local SMS Batch Sender", version="1.0.0")
+
+# Allow CORS for local development (frontend running on port 3000)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Services
 csv_service = CSVService()
@@ -24,9 +39,22 @@ async def startup_event():
     logger.info("Application starting up...")
     template_service.load_templates()
 
-@app.get("/")
+# API Routes
+@app.get("/api/health")
 def read_root():
     return {"message": "SMS Sender API is running"}
+
+@app.get("/templates")
+def get_templates():
+    """Returns the list of available template keys."""
+    return [
+        {"key": key, "label": key.replace("_", " ").title()} 
+        for key in template_service.get_template_keys()
+    ]
+
+
+
+
 
 @app.post("/batches", response_model=BatchResponse, status_code=201)
 async def create_batch(
@@ -114,4 +142,10 @@ def export_batch_csv(batch_id: str, db: Session = Depends(get_db)):
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=batch_{batch_id}.csv"}
     )
+
+
+# Serve Static Files (Frontend)
+# Ensure 'frontend/out' exists or is copied there in Docker
+if os.path.exists('frontend/out'):
+    app.mount('/', StaticFiles(directory='frontend/out', html=True), name='static')
 
