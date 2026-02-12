@@ -1,0 +1,12 @@
+services:
+  app:
+    build: .
+    image: sms-sender:latest
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./sms.db:/app/sms.db
+      - ./logs:/app/logs
+    restart: unless-stopped

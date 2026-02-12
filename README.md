@@ -43,29 +43,41 @@ A local SMS batch sender with a web dashboard, built with Python (FastAPI), Next
 
 ## Configuration
 
-1.  Create a `.env` file in the root directory:
+1.  **Environment Variables**:
+    Copy the example environment file and configure it with your credentials:
+    ```bash
+    cp .env.example .env
+    ```
+    
+    Edit `.env` and fill in your values:
     ```env
     PROVIDER_BASE_URL=https://core.vitemobile.com
     PROVIDER_BEARER_TOKEN=your_vitemobile_access_token_here
     DEFAULT_REGION=US
     RATE_LIMIT_PER_SECOND=5.0
     DATABASE_PATH=./sms.db
-    
-    # ViteMobile Specific Settings
-    VITEMOBILE_SERVER_TYPE=PUBLIC  # Options: PUBLIC, PRIVATE
-    VITEMOBILE_PROTOCOL=SMS        # Options: SMS, MMS
     ```
 
-2.  Customize `templates.json` with your message templates.
+2.  **Templates**:
+    Customize `templates.json` with your message templates.
 
 ## Running the Application
 
-### Option 1: Docker (Recommended)
-Builds a single image containing both the backend API and the frontend UI.
+### Option 1: Docker Compose (Recommended)
+The easiest way to run the application is with Docker Compose. This handles the database volume and environment variables automatically.
+
+```bash
+docker compose up --build
+```
+
+Access the **Dashboard** at `http://localhost:8000`.
+
+### Option 2: Docker Build (Manual)
+Build and run the container manually:
 
 ```bash
 docker build -t sms-sender .
-docker run -p 8000:8000 --env-file .env sms-sender
+docker run -p 8000:8000 --env-file .env -v $(pwd)/sms.db:/app/sms.db -v $(pwd)/logs:/app/logs sms-sender
 ```
 
 Access the **Dashboard** at `http://localhost:8000`.
