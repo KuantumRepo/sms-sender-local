@@ -104,6 +104,22 @@ It includes a temporary 1GB Swapfile initialization to prevent Next.js `Out-Of-M
    ```
 4. *Note: If a `.env` file is missing, the script will create one and pause, asking you to configure your API keys before proceeding.*
 
+**Viewing Production Logs**
+Once deployed natively via systemd, you can monitor the application logs from anywhere on the server:
+
+- **Live Application Logs (FastAPI Systemd Service):**
+  ```bash
+  journalctl -u sms-sender -f
+  ```
+- **Live Caddy Logs (Reverse Proxy / HTTPS Networking):**
+  ```bash
+  journalctl -u caddy -f
+  ```
+- **Historical Batch Sending Events (Python text log):**
+  ```bash
+  tail -f /opt/sms-sender/logs/sms_sender.log
+  ```
+
 ### Option 2: Local Development
 Run backend and frontend separately.
 
