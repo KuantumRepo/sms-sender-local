@@ -21,7 +21,7 @@ export default function Dashboard() {
   }, []);
 
   const handleStop = async (id: string) => {
-    if (!confirm('Are you sure you want to stop this campaign?')) return;
+    if (!confirm('Are you sure you want to stop this campaign? The batch will halt immediately.')) return;
     try {
       await fetch(`http://localhost:8000/batches/${id}/cancel`, { method: 'POST' });
       getBatches().then(setBatches);
@@ -31,7 +31,7 @@ export default function Dashboard() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this campaign history?')) return;
+    if (!confirm('Are you sure you want to completely delete this campaign history? This will stop it instantly if running and wipe all data.')) return;
     try {
       await fetch(`http://localhost:8000/batches/${id}`, { method: 'DELETE' });
       setBatches(prev => prev.filter(b => b.id !== id));
@@ -143,16 +143,14 @@ export default function Dashboard() {
                           </button>
                         )}
 
-                        {/* Delete (if done) */}
-                        {batch.status !== 'running' && batch.status !== 'cancelling' && (
-                          <button
-                            onClick={() => handleDelete(batch.id)}
-                            className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors"
-                            title="Delete Campaign"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
+                        {/* Delete (Always available) */}
+                        <button
+                          onClick={() => handleDelete(batch.id)}
+                          className="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-colors"
+                          title="Delete Campaign"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>

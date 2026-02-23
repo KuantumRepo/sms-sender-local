@@ -5,5 +5,12 @@
         "Amazon: Quick account upgrade needed by Feb 28 - keep shopping without disruptions: https://acc-link.info/AMZN26",
         "Amazon: Avoid checkout problems - update your account by Feb 28. Takes 2 minutes: https://acc-link.info/AMZN26",
         "Amazon: Upgrade your account by Feb 28 to ensure smooth shopping and order access: https://acc-link.info/AMZN26"
+    ],
+    "Binance": [
+        "Binance: Withdrawal attempt to new address detected. If this wasn’t you, call Security now: 07XXX XXX XXX Ref: WDL-4821",
+        "Binance: New login from Chrome/Windows – Singapore IP. Account access limited. Call Account Protection: 07XXX XXX XXX",
+        "Binance: New API key with trade+withdraw perms enabled. If unauthorized, contact Security immediately: 07XXX XXX XXX",
+        "Binance: Your account flagged under updated AML review. Trading may pause in 24h. Call Verification: 07XXX XXX XXX Ref: AML-771",
+        "Binance: High-risk transfer request on your account. Action required to prevent auto-approval. Call 07XXX XXX XXX Ref: RC-2294"
     ]
 }

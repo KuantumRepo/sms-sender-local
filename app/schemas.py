@@ -38,3 +38,31 @@ class MessageResponse(MessageBase):
 class BatchDetailResponse(BatchResponse):
     messages: List[MessageResponse] = []
 
+class TemplateVariationBase(BaseModel):
+    message_text: str
+
+class TemplateVariationCreate(TemplateVariationBase):
+    pass
+
+class TemplateVariationResponse(TemplateVariationBase):
+    id: int
+    template_id: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class TemplateBase(BaseModel):
+    name: str
+    key: str
+
+class TemplateCreate(TemplateBase):
+    variations: List[TemplateVariationCreate]
+
+class TemplateResponse(TemplateBase):
+    id: str
+    created_at: datetime
+    variations: List[TemplateVariationResponse] = []
+
+    class Config:
+        from_attributes = True

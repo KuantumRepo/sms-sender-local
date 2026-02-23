@@ -11,10 +11,6 @@ export interface Batch {
     completed_at?: string;
 }
 
-export interface Template {
-    key: string;
-    label: string;
-}
 
 export async function uploadBatch(file: File, templateKey: string): Promise<Batch> {
     const formData = new FormData();
@@ -42,10 +38,61 @@ export async function getBatches(): Promise<Batch[]> {
     return res.json();
 }
 
-export async function getTemplates(): Promise<Template[]> {
+// -----------------------------
+// Template Types & Endpoints
+// -----------------------------
+
+export interface TemplateVariation {
+    id?: number;
+    template_id?: string;
+    message_text: string;
+}
+
+export interface Template {
+    id?: string;
+    name: string;
+    key: string;
+    variations: TemplateVariation[];
+}
+
+export const getTemplates = async (): Promise<Template[]> => {
     const res = await fetch(`${API_BASE}/templates`);
+    if (!res.ok) throw new Error('Failed to fetch templates');
+    return res.json();
+};
+
+export const createTemplate = async (template: Template): Promise<Template> => {
+    const res = await fetch(`${API_BASE}/templates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(template),
+    });
     if (!res.ok) {
-        throw new Error("Failed to fetch templates");
+        const data = await res.json();
+        throw new Error(data.detail || 'Failed to create template');
     }
     return res.json();
-}
+};
+
+export const updateTemplate = async (id: string, template: Template): Promise<Template> => {
+    const res = await fetch(`${API_BASE}/templates/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(template),
+    });
+    if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || 'Failed to update template');
+    }
+    return res.json();
+};
+
+export const deleteTemplate = async (id: string): Promise<void> => {
+    const res = await fetch(`${API_BASE}/templates/${id}`, {
+        method: 'DELETE',
+    });
+    if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || 'Failed to delete template');
+    }
+};

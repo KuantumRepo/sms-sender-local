@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
+import { getTemplates, Template } from '../../../lib/api';
 import { CheckCircle, XCircle, AlertTriangle, Loader2, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -17,12 +18,12 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
     const router = useRouter();
 
     // Fetch templates
-    const [templates, setTemplates] = useState<{ key: string, label: string }[]>([]);
+    const [templates, setTemplates] = useState<Template[]>([]);
     const [templateKey, setTemplateKey] = useState('');
+    const [batchSize, setBatchSize] = useState<number>(100);
 
     useEffect(() => {
-        fetch('http://localhost:8000/templates')
-            .then(res => res.json())
+        getTemplates()
             .then(data => {
                 setTemplates(data);
                 if (data.length > 0) setTemplateKey(data[0].key);
@@ -77,6 +78,7 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
             const formData = new FormData();
             formData.append('file', blob, 'import.csv');
             formData.append('template_key', templateKey || 'default');
+            formData.append('batch_size', String(batchSize));
 
             const response = await fetch('http://localhost:8000/batches', {
                 method: 'POST',
@@ -133,16 +135,34 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
 
             {/* Template Selection */}
             <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm space-y-4">
-                <label className="block text-sm font-medium text-slate-300">Message Template</label>
-                <select
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                    value={templateKey}
-                    onChange={e => setTemplateKey(e.target.value)}
-                >
-                    {templates.length > 0 ? templates.map(t => (
-                        <option key={t.key} value={t.key} className="text-slate-900 bg-white">{t.label}</option>
-                    )) : <option value="">Loading templates...</option>}
-                </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-300">Message Template</label>
+                        <select
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                            value={templateKey}
+                            onChange={e => setTemplateKey(e.target.value)}
+                        >
+                            {templates.length > 0 ? templates.map(t => (
+                                <option key={t.key} value={t.key} className="text-slate-900 bg-white">
+                                    {t.name} ({t.variations.length} variations)
+                                </option>
+                            )) : <option value="">Loading templates...</option>}
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-slate-300">Batch Size</label>
+                        <input
+                            type="number"
+                            min="1"
+                            max="1000"
+                            className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                            value={batchSize}
+                            onChange={e => setBatchSize(parseInt(e.target.value) || 100)}
+                        />
+                        <p className="text-xs text-slate-500">Number of messages per API request.</p>
+                    </div>
+                </div>
             </div>
 
             {/* Error Details */}

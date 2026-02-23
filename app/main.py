@@ -2,8 +2,8 @@ from fastapi import FastAPI, Depends, HTTPException, UploadFile, File, Form, Bac
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from app.database import engine, Base, get_db
-from app.models import Batch, Message
-from app.schemas import BatchResponse, MessageResponse
+from app.models import Batch, Message, Template, TemplateVariation
+from app.schemas import BatchResponse, MessageResponse, TemplateResponse, TemplateCreate
 from app.utils.logger import logger
 from app.services.csv_service import CSVService
 from app.services.template_service import template_service
@@ -44,13 +44,64 @@ async def startup_event():
 def read_root():
     return {"message": "SMS Sender API is running"}
 
-@app.get("/templates")
-def get_templates():
-    """Returns the list of available template keys."""
-    return [
-        {"key": key, "label": key.replace("_", " ").title()} 
-        for key in template_service.get_template_keys()
-    ]
+@app.get("/templates", response_model=List[TemplateResponse])
+def get_templates(db: Session = Depends(get_db)):
+    """Returns all templates and their variations."""
+    templates = db.query(Template).all()
+    return templates
+
+@app.post("/templates", response_model=TemplateResponse, status_code=201)
+def create_template(template: TemplateCreate, db: Session = Depends(get_db)):
+    """Create a new template with initial variations."""
+    # Check if key exists
+    if db.query(Template).filter(Template.key == template.key).first():
+        raise HTTPException(status_code=400, detail="Template key already exists")
+    
+    new_template = Template(name=template.name, key=template.key)
+    db.add(new_template)
+    db.flush()
+    
+    for v in template.variations:
+        new_v = TemplateVariation(template_id=new_template.id, message_text=v.message_text)
+        db.add(new_v)
+        
+    db.commit()
+    db.refresh(new_template)
+    return new_template
+
+@app.put("/templates/{template_id}", response_model=TemplateResponse)
+def update_template(template_id: str, template: TemplateCreate, db: Session = Depends(get_db)):
+    """Update a template and its variations (replaces old ones)."""
+    db_template = db.query(Template).filter(Template.id == template_id).first()
+    if not db_template:
+        raise HTTPException(status_code=404, detail="Template not found")
+        
+    # Update name/key
+    db_template.name = template.name
+    db_template.key = template.key
+    
+    # Delete old variations and insert new
+    db.query(TemplateVariation).filter(TemplateVariation.template_id == template_id).delete()
+    
+    for v in template.variations:
+        new_v = TemplateVariation(template_id=template_id, message_text=v.message_text)
+        db.add(new_v)
+        
+    db.commit()
+    db.refresh(db_template)
+    return db_template
+
+@app.delete("/templates/{template_id}", status_code=204)
+def delete_template(template_id: str, db: Session = Depends(get_db)):
+    """Deletes a template and all its variations completely."""
+    db_template = db.query(Template).filter(Template.id == template_id).first()
+    if not db_template:
+        raise HTTPException(status_code=404, detail="Template not found")
+        
+    # Cascade handles variations deletion due to model definition, but we can do it explicitly
+    db.delete(db_template)
+    db.commit()
+    return
 
 
 
@@ -61,6 +112,7 @@ async def create_batch(
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     template_key: str = Form(...),
+    batch_size: int = Form(100),
     db: Session = Depends(get_db)
 ):
     # 1. Validate Template
@@ -86,7 +138,8 @@ async def create_batch(
         batch_service.process_batch, 
         batch.id, 
         valid_numbers, 
-        template_key
+        template_key,
+        batch_size
     )
 
     return batch
@@ -151,7 +204,9 @@ def cancel_batch(batch_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Batch not found")
     
     if batch.status == "running":
-        batch.status = "cancelling"
+        # Instantly kill the background task if it's running
+        BatchService(db).cancel_task(batch_id)
+        batch.status = "cancelled"
         db.commit()
     
     return batch
@@ -162,6 +217,9 @@ def delete_batch(batch_id: str, db: Session = Depends(get_db)):
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
     
+    # Instantly kill it if running before deleting
+    BatchService(db).cancel_task(batch_id)
+
     # Delete related messages first
     db.query(Message).filter(Message.batch_id == batch_id).delete()
     db.delete(batch)

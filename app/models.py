@@ -19,7 +19,27 @@ class Batch(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
-    messages = relationship("Message", back_populates="batch")
+    messages = relationship("Message", back_populates="batch", cascade="all, delete-orphan")
+
+class Template(Base):
+    __tablename__ = "templates"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    name = Column(String, unique=True, nullable=False)
+    key = Column(String, unique=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    variations = relationship("TemplateVariation", back_populates="template", cascade="all, delete-orphan")
+
+class TemplateVariation(Base):
+    __tablename__ = "template_variations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(String, ForeignKey("templates.id"), nullable=False)
+    message_text = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    template = relationship("Template", back_populates="variations")
 
 class Message(Base):
     __tablename__ = "messages"

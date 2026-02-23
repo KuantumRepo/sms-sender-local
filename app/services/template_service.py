@@ -2,43 +2,78 @@ import json
 import random
 import os
 from typing import List, Dict, Optional
+from sqlalchemy.orm import Session
 from app.utils.logger import logger
+from app.models import Template, TemplateVariation
+from app.database import SessionLocal
 
 class TemplateService:
     def __init__(self, templates_path: str = "templates.json"):
         self.templates_path = templates_path
-        self._templates: Dict[str, List[str]] = {}
-        self.load_templates()
 
     def load_templates(self):
-        """Loads templates from the JSON file."""
+        """Migrates templates from the JSON file to the database if the DB is empty."""
         if not os.path.exists(self.templates_path):
-            logger.error(f"Template file not found: {self.templates_path}")
-            self._templates = {}
             return
 
+        db = SessionLocal()
         try:
+            # Check if we already have templates in the DB
+            existing_count = db.query(Template).count()
+            if existing_count > 0:
+                logger.info("Templates already exist in database. Skipping JSON migration.")
+                return
+
             with open(self.templates_path, "r", encoding="utf-8") as f:
-                self._templates = json.load(f)
-            logger.info(f"Loaded {len(self._templates)} templates from {self.templates_path}")
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse template file: {e}")
-            self._templates = {}
+                json_templates = json.load(f)
+            
+            for key, variations in json_templates.items():
+                name = key.replace("_", " ").title()
+                new_template = Template(name=name, key=key)
+                db.add(new_template)
+                db.flush() # Get the new_template.id
+                
+                for msg_text in variations:
+                    variation = TemplateVariation(template_id=new_template.id, message_text=msg_text)
+                    db.add(variation)
+            
+            db.commit()
+            logger.info(f"Migrated {len(json_templates)} templates from {self.templates_path} to Database.")
+        except Exception as e:
+            logger.error(f"Failed to migrate template file: {e}")
+            db.rollback()
+        finally:
+            db.close()
 
     def get_template_keys(self) -> List[str]:
-        """Returns a list of available template keys."""
-        return list(self._templates.keys())
+        """Returns a list of available template keys directly from the database."""
+        db = SessionLocal()
+        try:
+            templates = db.query(Template).all()
+            return [t.key for t in templates]
+        finally:
+            db.close()
 
     def get_variation(self, template_key: str) -> Optional[str]:
         """
-        Returns a random variation for the given template key.
+        Returns a random variation for the given template key from the database.
         """
-        variations = self._templates.get(template_key)
-        if not variations:
-            return None
-        return random.choice(variations)
+        db = SessionLocal()
+        try:
+            template = db.query(Template).filter(Template.key == template_key).first()
+            if not template or not template.variations:
+                return None
+            
+            variations = [v.message_text for v in template.variations]
+            return random.choice(variations)
+        finally:
+            db.close()
 
     def validate_template_key(self, template_key: str) -> bool:
-        return template_key in self._templates
+        db = SessionLocal()
+        try:
+            return db.query(Template).filter(Template.key == template_key).first() is not None
+        finally:
+            db.close()
 
 template_service = TemplateService()
