@@ -1,5 +1,8 @@
-const API_BASE = "http://127.0.0.1:8000";
-
+// Use relative path for production (since Caddy proxies both frontend and backend on the same domain)
+// Fallback to localhost:8000 for local development if window is undefined (SSR) or running locally
+const API_BASE = typeof window !== "undefined" && window.location.hostname !== "localhost"
+    ? ""
+    : "http://127.0.0.1:8000";
 export interface Batch {
     id: string;
     template_key: string;
