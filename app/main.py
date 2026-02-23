@@ -19,7 +19,7 @@ import os
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Local SMS Batch Sender", version="1.0.0")
+app = FastAPI(title="clicker12 command & control", version="1.0.0")
 
 # Allow CORS for local development (frontend running on port 3000)
 app.add_middleware(

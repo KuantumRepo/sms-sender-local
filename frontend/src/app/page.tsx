@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getBatches, Batch } from '../lib/api';
+import { getBatches, Batch, API_BASE } from '../lib/api';
 import { CSVWizard } from '../components/csv-wizard/CSVWizard';
 
 import { Trash2, Square, Download } from 'lucide-react';
@@ -23,7 +23,7 @@ export default function Dashboard() {
   const handleStop = async (id: string) => {
     if (!confirm('Are you sure you want to stop this campaign? The batch will halt immediately.')) return;
     try {
-      await fetch(`http://localhost:8000/batches/${id}/cancel`, { method: 'POST' });
+      await fetch(`${API_BASE}/batches/${id}/cancel`, { method: 'POST' });
       getBatches().then(setBatches);
     } catch (e) {
       alert('Failed to stop batch: ' + e);
@@ -33,7 +33,7 @@ export default function Dashboard() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to completely delete this campaign history? This will stop it instantly if running and wipe all data.')) return;
     try {
-      await fetch(`http://localhost:8000/batches/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/batches/${id}`, { method: 'DELETE' });
       setBatches(prev => prev.filter(b => b.id !== id));
     } catch (e) {
       alert('Failed to delete batch: ' + e);
@@ -45,8 +45,8 @@ export default function Dashboard() {
       <div className="max-w-6xl mx-auto space-y-12">
 
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-white">SMS Batch Campaign</h1>
-          <p className="text-slate-400">Manage your contacts and campaigns efficiently</p>
+          <h1 className="text-3xl font-mono font-bold text-emerald-500 tracking-wider">&gt;_clicker12_campaign_ops</h1>
+          <p className="text-emerald-500/50 font-mono text-sm uppercase tracking-widest">[ secure broadcast network initialized ]</p>
         </div>
 
         {/* New 3-Step Wizard */}
@@ -124,7 +124,7 @@ export default function Dashboard() {
                       <div className="flex items-center space-x-2">
                         {/* Download */}
                         <a
-                          href={`http://localhost:8000/batches/${batch.id}/export`}
+                          href={`${API_BASE}/batches/${batch.id}/export`}
                           target="_blank"
                           className="p-2 text-slate-400 hover:text-blue-400 hover:bg-slate-800 rounded-lg transition-colors"
                           title="Download CSV"

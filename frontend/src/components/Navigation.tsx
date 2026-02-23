@@ -18,7 +18,7 @@ export function Navigation() {
                 <div className="flex h-16 items-center justify-between">
                     <div className="flex items-center space-x-8">
                         <div className="flex-shrink-0">
-                            <span className="text-white font-bold text-xl tracking-tight">Kuantum SMS</span>
+                            <span className="text-emerald-500 font-mono font-bold text-xl tracking-widest">&gt;_clicker12</span>
                         </div>
                         <div className="hidden md:block">
                             <div className="flex items-baseline space-x-4">

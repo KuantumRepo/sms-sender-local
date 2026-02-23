@@ -82,8 +82,8 @@ function TemplateFormContent() {
                         <ArrowLeft className="w-5 h-5" />
                     </Link>
                     <div className="space-y-1">
-                        <h1 className="text-2xl font-bold text-white">
-                            {isNew ? 'Create New Template' : 'Edit Template'}
+                        <h1 className="text-2xl font-mono font-bold text-emerald-500 tracking-wider">
+                            {isNew ? '>_create_payload' : '>_edit_payload'}
                         </h1>
                     </div>
                 </div>

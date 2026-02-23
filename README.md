@@ -1,4 +1,4 @@
-# Local SMS Batch Sender
+# clicker12
 
 A local SMS batch sender with a web dashboard, built with Python (FastAPI), Next.js, and SQLite. Designed for personal use to send bulk SMS messages via the ViteMobile API (or other providers).
 

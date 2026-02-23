@@ -34,8 +34,8 @@ export default function TemplatesPage() {
 
                 <div className="flex justify-between items-center">
                     <div className="space-y-2">
-                        <h1 className="text-3xl font-bold text-white">Message Templates</h1>
-                        <p className="text-slate-400">Manage campaign templates and rotating variations.</p>
+                        <h1 className="text-3xl font-mono font-bold text-emerald-500 tracking-wider">&gt;_clicker12_templates</h1>
+                        <p className="font-mono text-emerald-500/50 uppercase text-sm tracking-widest">[ manage transmission payloads ]</p>
                     </div>
                     <Link
                         href="/templates/edit?id=new"

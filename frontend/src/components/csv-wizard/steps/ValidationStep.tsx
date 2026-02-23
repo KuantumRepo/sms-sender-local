@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { getTemplates, Template } from '../../../lib/api';
+import { getTemplates, Template, API_BASE } from '../../../lib/api';
 import { CheckCircle, XCircle, AlertTriangle, Loader2, Send } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -80,7 +80,7 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
             formData.append('template_key', templateKey || 'default');
             formData.append('batch_size', String(batchSize));
 
-            const response = await fetch('http://localhost:8000/batches', {
+            const response = await fetch(`${API_BASE}/batches`, {
                 method: 'POST',
                 body: formData,
             });
@@ -106,9 +106,9 @@ export const ValidationStep: React.FC<ValidationStepProps> = ({
     return (
         <div className="w-full max-w-4xl mx-auto mt-8 space-y-8">
             <div className="space-y-2 text-center">
-                <h2 className="text-2xl font-bold text-white">Review & Submit</h2>
-                <p className="text-slate-400">
-                    We've analyzed your data. Please review the summary below before importing.
+                <h2 className="text-2xl font-mono font-bold text-emerald-500">&gt;_payload_review</h2>
+                <p className="font-mono text-sm text-emerald-500/50 uppercase tracking-widest">
+                    [ analyzing targets before transmission ]
                 </p>
             </div>
 
