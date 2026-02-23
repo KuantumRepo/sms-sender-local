@@ -11,7 +11,8 @@ A local SMS batch sender with a web dashboard, built with Python (FastAPI), Next
 - **Normalization**: Automatically formats phone numbers to E.164.
 - **Rate Limiting**: Configurable send rate to avoid throttles.
 - **Reporting**: Track batch status, view failed numbers, and export full results to CSV.
-- **Docker Ready**: Single container for both Frontend and Backend.
+- **Production Ready**: Ships with a one-click deployment script (`deploy.sh`) for lightweight VPS hosting using Native Systemd + Caddy SSL.
+- **Docker Ready**: Isolated containerization for both Frontend and Backend.
 
 ## Prerequisites
 
@@ -81,6 +82,27 @@ docker run -p 8000:8000 --env-file .env -v $(pwd)/sms.db:/app/sms.db -v $(pwd)/l
 ```
 
 Access the **Dashboard** at `http://localhost:8000`.
+
+### Option 3: Production VPS Deployment (Native)
+Optimized for ultra-lightweight VPS hosting (e.g., 1GB RAM DigitalOcean Droplet or EC2 `t2.micro`). This script natively bypasses Docker's heavy resource overhead by compiling the Next.js frontend into static HTML and daemonizing the Python FastAPI backend via `systemd`. 
+
+It includes a temporary 1GB Swapfile initialization to prevent Next.js `Out-Of-Memory` build crashing, and wires up a `Caddy` reverse proxy for automatic SSL certificate generation.
+
+**Steps:**
+1. Provision a fresh Ubuntu-based VPS and SSH into it as `root`:
+   ```bash
+   ssh root@<your-server-ip>
+   ```
+2. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd sms-sender
+   ```
+3. Run the automated deployment script:
+   ```bash
+   sudo bash deploy.sh
+   ```
+4. *Note: If a `.env` file is missing, the script will create one and pause, asking you to configure your API keys before proceeding.*
 
 ### Option 2: Local Development
 Run backend and frontend separately.
