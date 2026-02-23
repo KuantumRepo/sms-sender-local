@@ -9,7 +9,6 @@ set -e
 
 # Configuration
 APP_DIR="/opt/sms-sender"
-REPO_URL="https://github.com/YOUR_GITHUB_USERNAME/sms-sender.git" # Replace with actual URL
 SERVICE_NAME="sms-sender"
 SERVICE_USER="www-data"
 
@@ -47,13 +46,17 @@ else
     echo "Swapfile already exists."
 fi
 
-# 4. Clone / Update Repository
+# 4. Setup Application Directory
 echo "[3/7] Setting up Application Directory ($APP_DIR)..."
-if [ ! -d "$APP_DIR" ]; then
-    git clone $REPO_URL $APP_DIR
-else
-    cd $APP_DIR
-    git pull
+# Get the directory where this script is currently located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ "$SCRIPT_DIR" != "$APP_DIR" ]; then
+    echo "Copying application files from $SCRIPT_DIR to $APP_DIR..."
+    mkdir -p $APP_DIR
+    cp -r $SCRIPT_DIR/* $APP_DIR/
+    # Copy hidden files like .env.example
+    cp -r $SCRIPT_DIR/.[!.]* $APP_DIR/ 2>/dev/null || true
 fi
 
 cd $APP_DIR
