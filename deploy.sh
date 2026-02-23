@@ -31,7 +31,11 @@ curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmo
 curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
 apt-get update
 
-apt-get install -y git python3 python3-venv python3-pip nodejs npm caddy ufw
+apt-get install -y git python3 python3-venv python3-pip caddy ufw
+
+# Install Node.js 20.x (Next.js requires >= 20.9.0)
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
 
 # 3. Create 1GB Swap File (Prevents Out-Of-Memory during Next.js build on 1GB VPS)
 echo "[2/7] Checking Swap File Initialization..."
